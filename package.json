@@ -10,6 +10,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-native-firebase/app": "^11.2.0",
+    "@react-native-firebase/auth": "^11.2.0",
     "react": "17.0.1",
     "react-native": "0.64.0",
     "react-native-paper": "^4.7.2",

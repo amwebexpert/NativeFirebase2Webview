@@ -3,14 +3,63 @@ import { StyleSheet, View, Text } from 'react-native';
 
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 import Spinner from './components/Spinner/Index';
 import { Button } from 'react-native-paper';
 
 export default function App() {
   const webviewRef = React.useRef<WebView>(null);
-  const [fullName, setFullName] = React.useState('');
-  const [metadata, setMetadata] = React.useState('');
+  const [user, setUser] = React.useState<FirebaseAuthTypes.User | null>(null);
+
+  React.useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(user => {
+      setUser(user);
+
+      // https://stackoverflow.com/a/55473818/704681
+      user?.getIdToken(/* forceRefresh */ true)
+        .then(token => console.log('token ', token));
+    });
+
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  function createUser() {
+    console.log('calling createUserWithEmailAndPassword');
+    auth()
+      .createUserWithEmailAndPassword('jane.doe@example.com', 'SuperSecretPassword!')
+      .then(() => console.log('User account created & signed in!'))
+      .catch(console.error);
+  }
+
+  function signIn() {
+    console.log('calling signInWithEmailAndPassword');
+    auth()
+      .signInWithEmailAndPassword('jane.doe@example.com', 'SuperSecretPassword!')
+      .then(() => console.log('User signed in!'))
+      .catch(console.error);
+  }
+
+  function signOut() {
+    auth()
+      .signOut()
+      .then(() => console.log('User signed out!'));
+  }
+
+  async function authenticateWebViewFromNativeSide() {
+    const token = await user?.getIdToken(true);
+    const createCustomTokenApiURL = 'https://amw-hangman-api.herokuapp.com/api/v1/token/createCustomToken';
+
+    const response = await fetch(createCustomTokenApiURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+    const {customToken} = await response.json();
+    console.log('customToken', customToken);
+  }
 
   function onNavigationStateChange(navState: WebViewNavigation) {
     console.log('==> ${navState.url}' + navState.loading ? '...' : '.');
@@ -33,16 +82,17 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.userMetadata}>
-        <Text>{fullName}</Text>
-        <Text>{metadata}</Text>
-        <Button mode="contained" onPress={() => postMessageToWebapp('getValidAccessToken', '')}>get Valid Token</Button>
+        <Text>{user?.email}</Text>
+        {!user && <Button mode="contained" onPress={signIn}>SignIn</Button>}
+        {user && <Button mode="contained" onPress={signOut}>SignOut</Button>}
+        <Button mode="contained" onPress={authenticateWebViewFromNativeSide}>Native 2 Webview</Button>
       </View>
       <View style={styles.webView}>
         <WebView
           ref={webviewRef}
           onMessage={onMessage}
           source={{
-            uri: 'https://amwebexpert.github.io/auth0-demo-react',
+            uri: 'https://amw-hangman-api.herokuapp.com',
             headers: { 'spa-id': 'poc-react-native-webview-oauth2' },
           }}
           onNavigationStateChange={onNavigationStateChange}
