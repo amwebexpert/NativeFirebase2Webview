@@ -57,8 +57,10 @@ export default function App() {
         'Authorization': `Bearer ${token}`,
       }
     });
-    const {customToken} = await response.json();
+
+    const { customToken } = await response.json();
     console.log('customToken', customToken);
+    postMessageToWebapp('customToken', customToken);
   }
 
   function onNavigationStateChange(navState: WebViewNavigation) {
