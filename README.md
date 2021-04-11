@@ -1,5 +1,7 @@
 # NativeFirebase2Webview
 
+Native firebase login within react-native, integrated with a SPA wrapped be a Webview.
+
 POC for authenticating within a React Native app by the mean of Firebase Native. Once the login process is completed then try
 to pass the token to an existing SPA as a single sign on process.
 
