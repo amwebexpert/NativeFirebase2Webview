@@ -63,30 +63,25 @@ export default function App() {
     postMessageToWebapp('customToken', customToken);
   }
 
-  function onNavigationStateChange(navState: WebViewNavigation) {
-    console.log('==> ${navState.url}' + navState.loading ? '...' : '.');
-  }
-
   async function onMessage(event: WebViewMessageEvent) {
     const { type, data } = JSON.parse(event.nativeEvent.data);
     console.log(`NATIVE: receiving [${type}]`, data);
   }
 
   async function postMessageToWebapp(type: string, data: string) {
-    if (!webviewRef.current) {
-      return;
+    if (webviewRef.current) {
+      const message = JSON.stringify({ type, data });
+      webviewRef.current.injectJavaScript(`window.postMessage(${message}, '*'); true;`);
     }
-
-    const message = JSON.stringify({ type, data });
-    webviewRef.current.injectJavaScript(`window.postMessage(${message}, '*'); true;`);
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.userMetadata}>
+        <Text>React Native Firebase</Text>
         <Text>{user?.email}</Text>
-        {!user && <Button mode="contained" onPress={signIn}>SignIn</Button>}
-        {user && <Button mode="contained" onPress={signOut}>SignOut</Button>}
+        {!user && <Button mode="contained" onPress={signIn}>Sign In</Button>}
+        {user && <Button mode="contained" onPress={signOut}>Sign Out</Button>}
         <Button mode="contained" onPress={authenticateWebViewFromNativeSide}>Native 2 Webview</Button>
       </View>
       <View style={styles.webView}>
@@ -97,7 +92,6 @@ export default function App() {
             uri: 'https://amw-hangman-api.herokuapp.com',
             headers: { 'spa-id': 'poc-react-native-webview-oauth2' },
           }}
-          onNavigationStateChange={onNavigationStateChange}
           javaScriptEnabled={true}
           domStorageEnabled={true}
           sharedCookiesEnabled={true}
