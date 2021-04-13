@@ -77,7 +77,14 @@ export default function App() {
   async function postMessageToWebapp(type: string, data: string) {
     if (webviewRef.current) {
       const message = JSON.stringify({ type, data });
-      webviewRef.current.injectJavaScript(`window.postMessage(${message}, '${serverBaseUrl}'); true;`);
+
+      // console.log('Approach 1: Sending message using webviewRef.current.injectJavaScript()');
+      // webviewRef.current.injectJavaScript(`window.postMessage(${message}, '${serverBaseUrl}'); true;`);
+
+      console.log('Approach 2: Sending message using webviewRef.current.postMessage()');
+      webviewRef.current.postMessage(message);
+
+      console.log('Message sent.');
     }
   }
 
