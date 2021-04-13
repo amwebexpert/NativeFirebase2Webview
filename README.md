@@ -15,4 +15,6 @@ to pass the token to an existing SPA as a single sign on process.
 * https://stackoverflow.com/a/55473818/704681
 * https://auth0.com/blog/developing-real-time-apps-with-firebase-and-firestore/
 * https://firebase.google.com/docs/auth/admin/verify-id-tokens#web
+* https://stackoverflow.com/questions/41160221/react-native-webview-postmessage-does-not-work
+
 
