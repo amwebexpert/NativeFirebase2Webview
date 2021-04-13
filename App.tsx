@@ -11,6 +11,7 @@ import { Button } from 'react-native-paper';
 export default function App() {
   const webviewRef = React.useRef<WebView>(null);
   const [user, setUser] = React.useState<FirebaseAuthTypes.User | null>(null);
+  const apiServerBaseUrl = 'https://amw-hangman-api.herokuapp.com';
 
   React.useEffect(() => {
     const subscriber = auth().onAuthStateChanged(user => {
@@ -47,8 +48,13 @@ export default function App() {
   }
 
   async function authenticateWebViewFromNativeSide() {
-    const token = await user?.getIdToken(true);
-    const createCustomTokenApiURL = 'https://amw-hangman-api.herokuapp.com/api/v1/token/createCustomToken';
+    if (!user) {
+      // TODO display error, warn user
+      return;
+    }
+
+    const token = await user.getIdToken(true);
+    const createCustomTokenApiURL = `${apiServerBaseUrl}/api/v1/token/createCustomToken`;
 
     const response = await fetch(createCustomTokenApiURL, {
       method: 'POST',
@@ -71,7 +77,7 @@ export default function App() {
   async function postMessageToWebapp(type: string, data: string) {
     if (webviewRef.current) {
       const message = JSON.stringify({ type, data });
-      webviewRef.current.injectJavaScript(`window.postMessage(${message}, '*'); true;`);
+      webviewRef.current.injectJavaScript(`window.postMessage(${message}, '${apiServerBaseUrl}'); true;`);
     }
   }
 
@@ -89,8 +95,7 @@ export default function App() {
           ref={webviewRef}
           onMessage={onMessage}
           source={{
-            uri: 'https://amw-hangman-api.herokuapp.com',
-            headers: { 'spa-id': 'poc-react-native-webview-oauth2' },
+            uri: apiServerBaseUrl
           }}
           javaScriptEnabled={true}
           domStorageEnabled={true}
