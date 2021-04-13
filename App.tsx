@@ -11,7 +11,7 @@ import { Button } from 'react-native-paper';
 export default function App() {
   const webviewRef = React.useRef<WebView>(null);
   const [user, setUser] = React.useState<FirebaseAuthTypes.User | null>(null);
-  const apiServerBaseUrl = 'https://amw-hangman-api.herokuapp.com';
+  const serverBaseUrl = 'https://amw-hangman-api.herokuapp.com'; // hardcoded but this would normally be a config
 
   React.useEffect(() => {
     const subscriber = auth().onAuthStateChanged(user => {
@@ -54,7 +54,7 @@ export default function App() {
     }
 
     const token = await user.getIdToken(true);
-    const createCustomTokenApiURL = `${apiServerBaseUrl}/api/v1/token/createCustomToken`;
+    const createCustomTokenApiURL = `${serverBaseUrl}/api/v1/token/createCustomToken`;
 
     const response = await fetch(createCustomTokenApiURL, {
       method: 'POST',
@@ -77,7 +77,7 @@ export default function App() {
   async function postMessageToWebapp(type: string, data: string) {
     if (webviewRef.current) {
       const message = JSON.stringify({ type, data });
-      webviewRef.current.injectJavaScript(`window.postMessage(${message}, '${apiServerBaseUrl}'); true;`);
+      webviewRef.current.injectJavaScript(`window.postMessage(${message}, '${serverBaseUrl}'); true;`);
     }
   }
 
@@ -94,13 +94,11 @@ export default function App() {
         <WebView
           ref={webviewRef}
           onMessage={onMessage}
-          source={{
-            uri: apiServerBaseUrl
-          }}
+          source={{ uri: serverBaseUrl }}
           javaScriptEnabled={true}
           domStorageEnabled={true}
-          sharedCookiesEnabled={true}
-          originWhitelist={["*"]}
+          sharedCookiesEnabled={false}
+          originWhitelist={[serverBaseUrl]}
           scalesPageToFit={true}
           startInLoadingState={true}
           mixedContentMode={"always"}
