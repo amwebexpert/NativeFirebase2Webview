@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
 import { WebView } from 'react-native-webview';
-import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
+import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 import Spinner from './components/Spinner/Index';
